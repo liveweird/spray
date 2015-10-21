@@ -14,13 +14,13 @@ class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
 
     "return simple GET JSON answer" in {
       Get("/api/anybody/home") ~> myRoute ~> check {
-        responseAs[String] must contain("\"home\": true")
+        responseAs[String] must contain("\"home\": 0")
       }
     }
 
     "return simple GET JSON answer is proper" in {
       Get("/api/anybody/home") ~> myRoute ~> check {
-        responseAs[Anybody].home === true
+        responseAs[Anybody].home === 0
       }
     }
 
@@ -44,9 +44,9 @@ class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
       }
     }
 
-    "return simple POST JSON answer for a request with arguments" in {
-      Post("/api/anybody/home/1") ~> myRoute ~> check {
-        responseAs[String] must contain("\"home\": false")
+    "return simple POST JSON answer for a request with arguments & form params" in {
+      Post("/api/anybody/home/1", FormData(Seq("id2" -> "5"))) ~> myRoute ~> check {
+        responseAs[String] must contain("\"home\": 6")
       }
     }
 

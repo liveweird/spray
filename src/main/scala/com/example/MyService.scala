@@ -8,7 +8,7 @@ import spray.json._
 import spray.httpx.SprayJsonSupport._
 import MediaTypes._
 
-case class Anybody(home: Boolean)
+case class Anybody(home: Int)
 
 object Anybody extends DefaultJsonProtocol with SprayJsonSupport {
   implicit def anybodyJsonFormat: RootJsonFormat[Anybody] = jsonFormat1(Anybody.apply)
@@ -67,7 +67,7 @@ trait MyService extends HttpService {
         get {
           respondWithMediaType(`application/json`) {
             complete {
-              Anybody(true)
+              Anybody(0)
             }
           }
         }
@@ -75,8 +75,10 @@ trait MyService extends HttpService {
       path("anybody" / "home" / Segment) { id =>
         post {
           respondWithMediaType(`application/json`) {
-            complete {
-              Anybody(false)
+            formFields('id2.as[Int]) { id2 =>
+              complete {
+                Anybody(id.toInt + id2)
+              }
             }
           }
         }
