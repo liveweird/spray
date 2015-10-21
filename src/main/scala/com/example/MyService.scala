@@ -1,17 +1,41 @@
 package com.example
 
 import akka.actor.Actor
+import spray.httpx.SprayJsonSupport
 import spray.routing._
 import spray.http._
 import spray.json._
-import DefaultJsonProtocol._
 import spray.httpx.SprayJsonSupport._
 import MediaTypes._
 
 case class Anybody(home: Boolean)
 
-object Anybody {
-  implicit def anybodyJsonformat: RootJsonFormat[Anybody] = jsonFormat1(Anybody.apply)
+object Anybody extends DefaultJsonProtocol with SprayJsonSupport {
+  implicit def anybodyJsonFormat: RootJsonFormat[Anybody] = jsonFormat1(Anybody.apply)
+}
+
+case class Junk1L(junk2La: List[Junk2La], junk2Lb: List[Junk2Lb], junk2Lc: List[Junk2Lc])
+
+object Junk1L extends DefaultJsonProtocol with SprayJsonSupport {
+  implicit def junk1LJsonFormat: RootJsonFormat[Junk1L] = jsonFormat3(Junk1L.apply)
+}
+
+case class Junk2La(junk3Laa: List[String])
+
+object Junk2La extends DefaultJsonProtocol with SprayJsonSupport {
+  implicit def junk2LaJsonFormat: RootJsonFormat[Junk2La] = jsonFormat1(Junk2La.apply)
+}
+
+case class Junk2Lb(junk3Lba: List[Int])
+
+object Junk2Lb extends DefaultJsonProtocol with SprayJsonSupport {
+  implicit def junk2LbJsonFormat: RootJsonFormat[Junk2Lb] = jsonFormat1(Junk2Lb.apply)
+}
+
+case class Junk2Lc(junk3Lca: List[Double])
+
+object Junk2Lc extends DefaultJsonProtocol with SprayJsonSupport {
+  implicit def junk2LcJsonFormat: RootJsonFormat[Junk2Lc] = jsonFormat1(Junk2Lc.apply)
 }
 
 // we don't implement our route structure directly in the service actor because
@@ -28,9 +52,14 @@ class MyServiceActor extends Actor with MyService {
   def receive = runRoute(myRoute)
 }
 
-
 // this trait defines our service behavior independently from the service actor
 trait MyService extends HttpService {
+
+  val tonOfJunk = new Junk1L(
+      List.fill(100)(new Junk2La(List.fill(100)("Abcdef"))),
+      List.fill(100)(new Junk2Lb(List.fill(100)(154538))),
+      List.fill(100)(new Junk2Lc(List.fill(100)(123.54534)))
+  )
 
   val myRoute =
     pathPrefix("api") {
@@ -48,6 +77,15 @@ trait MyService extends HttpService {
           respondWithMediaType(`application/json`) {
             complete {
               Anybody(false)
+            }
+          }
+        }
+      } ~
+      path("anybody" / "junk") {
+        get {
+          respondWithMediaType(`application/json`) {
+            complete {
+              tonOfJunk
             }
           }
         }
