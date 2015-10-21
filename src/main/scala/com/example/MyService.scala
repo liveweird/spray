@@ -33,11 +33,22 @@ class MyServiceActor extends Actor with MyService {
 trait MyService extends HttpService {
 
   val myRoute =
-    path("api" / "anybody" / "home") {
-      get {
-        respondWithMediaType(`application/json`) {
-          complete {
-            Anybody(true)
+    pathPrefix("api") {
+      path("anybody" / "home") {
+        get {
+          respondWithMediaType(`application/json`) {
+            complete {
+              Anybody(true)
+            }
+          }
+        }
+      } ~
+      path("anybody" / "home" / Segment) { id =>
+        post {
+          respondWithMediaType(`application/json`) {
+            complete {
+              Anybody(false)
+            }
           }
         }
       }

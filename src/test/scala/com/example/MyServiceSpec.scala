@@ -7,7 +7,7 @@ import StatusCodes._
 
 class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
   def actorRefFactory = system
-  
+
   "MyService" should {
 
     "return simple GET JSON answer" in {
@@ -26,6 +26,19 @@ class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
       Put("/api/anybody/home") ~> sealRoute(myRoute) ~> check {
         status === MethodNotAllowed
         responseAs[String] === "HTTP method not allowed, supported methods: GET"
+      }
+    }
+
+    "return simple POST JSON answer" in {
+      Post("/api/anybody/home") ~> sealRoute(myRoute) ~> check {
+        status === MethodNotAllowed
+        responseAs[String] === "HTTP method not allowed, supported methods: GET"
+      }
+    }
+
+    "return simple POST JSON answer for a request with arguments" in {
+      Post("/api/anybody/home/1") ~> myRoute ~> check {
+        responseAs[String] must contain("\"home\": false")
       }
     }
   }
