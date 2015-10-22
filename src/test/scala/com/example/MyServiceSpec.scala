@@ -5,6 +5,8 @@ import spray.routing.directives.{LoggingMagnet, DebuggingDirectives}
 import spray.testkit.Specs2RouteTest
 import spray.http._
 import StatusCodes._
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
 
 class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
   def actorRefFactory = system
@@ -13,6 +15,7 @@ class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
 
   def printRequestInfo(req: HttpRequest): Unit = println(req)
   val logRequestPrintln = DebuggingDirectives.logRequest(LoggingMagnet(printRequestInfo))
+  implicit val routeTestTimeout = RouteTestTimeout(FiniteDuration(200, MILLISECONDS))
 
   "MyService" should {
 
@@ -67,6 +70,12 @@ class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
         junk1L.junk2La(0).junk3Laa(0) === "Abcdef"
         junk1L.junk2Lb(0).junk3Lba(0) === 154538
         junk1L.junk2Lc(0).junk3Lca(0) === 123.54534
+      }
+    }
+
+    "return long-lasting GET JSON times out" in {
+      Get("/api/anybody/slowpoke") ~> myRoute ~> check {
+        responseAs[Anybody].home === -1
       }
     }
   }

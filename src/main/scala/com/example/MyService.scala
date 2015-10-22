@@ -91,6 +91,16 @@ trait MyService extends HttpService {
             }
           }
         }
+      } ~
+      path("anybody" / "slowpoke") {
+        get {
+          Thread.sleep(1000)
+          respondWithMediaType(`application/json`) {
+            complete {
+              Anybody(-1)
+            }
+          }
+        }
       }
     }
 }
