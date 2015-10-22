@@ -1,6 +1,7 @@
 package com.example
 
 import org.specs2.mutable.Specification
+import spray.routing.directives.{LoggingMagnet, DebuggingDirectives}
 import spray.testkit.Specs2RouteTest
 import spray.http._
 import StatusCodes._
@@ -9,6 +10,9 @@ class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
   def actorRefFactory = system
 
   import Anybody._
+
+  def printRequestInfo(req: HttpRequest): Unit = println(req)
+  val logRequestPrintln = DebuggingDirectives.logRequest(LoggingMagnet(printRequestInfo))
 
   "MyService" should {
 
@@ -45,7 +49,7 @@ class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
     }
 
     "return simple POST JSON answer for a request with arguments & form params" in {
-      Post("/api/anybody/home/1", FormData(Seq("id2" -> "5"))) ~> myRoute ~> check {
+      Post("/api/anybody/home/1", FormData(Seq("id2" -> "5"))) ~> logRequestPrintln(myRoute) ~> check {
         responseAs[String] must contain("\"home\": 6")
       }
     }
