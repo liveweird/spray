@@ -14,6 +14,12 @@ object Anybody extends DefaultJsonProtocol with SprayJsonSupport {
   implicit def anybodyJsonFormat: RootJsonFormat[Anybody] = jsonFormat1(Anybody.apply)
 }
 
+case class Anybody2(home: Int, home2: Int)
+
+object Anybody2 extends DefaultJsonProtocol with SprayJsonSupport {
+  implicit def anybodyJsonFormat: RootJsonFormat[Anybody2] = jsonFormat2(Anybody2.apply)
+}
+
 case class Junk1L(junk2La: List[Junk2La], junk2Lb: List[Junk2Lb], junk2Lc: List[Junk2Lc])
 
 object Junk1L extends DefaultJsonProtocol with SprayJsonSupport {
@@ -68,6 +74,15 @@ trait MyService extends HttpService {
           respondWithMediaType(`application/json`) {
             complete {
               Anybody(0)
+            }
+          }
+        }
+      } ~
+      path("anybody" / "home2") {
+        get {
+          respondWithMediaType(`application/json`) {
+            complete {
+              Anybody2(0, 1)
             }
           }
         }
